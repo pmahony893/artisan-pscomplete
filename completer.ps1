@@ -20,7 +20,7 @@ Register-ArgumentCompleter -CommandName art -Native -ScriptBlock {
     }
 
     if ($commandPreElements.Count -eq 0) {
-        php C:/workspaces/laravelbootcamp/chirper/artisan --format=json | 
+        php artisan --format=json | 
         ConvertFrom-Json | 
         Select-Object -ExpandProperty "commands" | 
         Where-Object { $_.name -like "$wordToComplete*" } |
@@ -35,7 +35,7 @@ Register-ArgumentCompleter -CommandName art -Native -ScriptBlock {
         return
     }
     elseif ("--" -notin $commandPreElements) {
-        php C:/workspaces/laravelbootcamp/chirper/artisan --format=json | 
+        php artisan --format=json | 
         ConvertFrom-Json | 
         Select-Object -ExpandProperty "commands" | 
         Where-Object { $_.name -eq $commandPreElements[0] } | 
