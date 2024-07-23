@@ -1,4 +1,7 @@
-Set-Alias -Name art -Value 'php artisan'
+function php_artisan {
+    php artisan ${Args} 
+}
+Set-Alias -Name art -Value php_artisan
 
 Register-ArgumentCompleter -CommandName art -Native -ScriptBlock {
     param($wordToComplete, $commandAst, $cursorPosition)
