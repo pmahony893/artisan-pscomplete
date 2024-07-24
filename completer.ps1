@@ -8,28 +8,35 @@ Set-Alias -Name art -Value php_artisan
     Register-ArgumentCompleter -CommandName $_ -Native -ScriptBlock {
         param($wordToComplete, $commandAst, $cursorPosition)
 
+        # First determine whether we're completing the artisan command (e.g. list or db:seed), 
+        # or a command parameter (e.g. -vv). For this, collect the command elements that occur 
+        # after the "artisan" element is found, and before the current word.
         $commandPreElements = @()
         $artFound = $false
         foreach ($commandElement in $commandAst.CommandElements) {
         
             if ($commandElement.Extent.EndOffset -ge $cursorPosition) {
+                # This is the current word
                 break
             }
 
             if (-not $artFound -and (Split-Path $commandElement -Leaf) -like 'art*') {
+                # This is the "artisan" element
                 $artFound = $true
             }
             elseif ($artFound) {
-                $commandPreElements += $commandElement
+                $commandPreElements += $commandElement.ToString()
             }
         }
 
         if (-not $artFound) {
+            # We're not running artisan
             return
         }
 
         if ($commandPreElements.Count -eq 0) {
-            php artisan --format=json | 
+            # We're completing the artisan comment (e.g. list or db:seed)
+            php artisan list --format=json | 
                 ConvertFrom-Json | 
                 Select-Object -ExpandProperty 'commands' | 
                 Where-Object { $_.hidden -ne $true -and $_.name -like "$wordToComplete*" } |
@@ -44,10 +51,12 @@ Set-Alias -Name art -Value php_artisan
                 return
             }
             elseif ('--' -notin $commandPreElements) {
-                php artisan --format=json | 
+                # We're completing a command parameter (e.g. -vv)
+                $artisanCommand, [string[]]$options = $commandPreElements
+                php artisan list --format=json | 
                     ConvertFrom-Json | 
                     Select-Object -ExpandProperty 'commands' | 
-                    Where-Object { $_.name -eq $commandPreElements[0] } | 
+                    Where-Object { $_.name -eq $artisanCommand } | 
                     Select-Object -ExpandProperty 'definition' | 
                     Select-Object -ExpandProperty 'options' | 
                     ForEach-Object { $_.psobject.properties.Value } | 
@@ -57,7 +66,7 @@ Set-Alias -Name art -Value php_artisan
                             name        = $_.name; 
                             description = $description 
                         };
-                        
+
                         $_.shortcut -split '\|' | 
                             Where-Object { $_ -ne '' } | 
                             ForEach-Object { 
@@ -67,7 +76,7 @@ Set-Alias -Name art -Value php_artisan
                                 } 
                             } 
                         } | 
-                        Where-Object { $_.name -like "$wordToComplete*" } |
+                        Where-Object { $_.name -like "$wordToComplete*" -and $_.name -notin $options } |
                         ForEach-Object { 
                             [System.Management.Automation.CompletionResult]::new(
                                 $_.name,
