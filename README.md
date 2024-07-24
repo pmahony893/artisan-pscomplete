@@ -10,4 +10,4 @@ PowerShell tab-completion for Laravel artisan.
 
 ## Usage
 
-Append the script contents to your PowerShell profile. As-is, it allows artisan to be run with the alias `art`; to allow other aliases, or even `php artisan` if you love typing, register the completer using a different `-CommandName`.
+Append the script contents to your PowerShell profile. As-is, it allows artisan to be run with the alias `art`, or by typing `php path/to/artisan`; to allow other aliases, update the array that is fed to the script block that calls `Register-ArgumentCompleter`.
