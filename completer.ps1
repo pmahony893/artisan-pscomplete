@@ -76,33 +76,31 @@ Set-Alias -Name art -Value php_artisan
                                 } 
                             } 
                         } | 
-                        Where-Object { $_.name -like "$wordToComplete*" -and ($_.spec.is_multiple -or $_.name -notin $options) } |
-                        ForEach-Object { 
-                            [System.Management.Automation.CompletionResult]::new(
-                                $(
-                                    $suffix = ''
-                                    if ($_.spec.is_value_required) {
-                                        $suffix = '='
+                    Where-Object { $_.name -like "$wordToComplete*" -and ($_.spec.is_multiple -or $_.name -notin $options) } |
+                    ForEach-Object { 
+                        [System.Management.Automation.CompletionResult]::new(
+                            $(
+                                $suffix = ''
+                                if ($_.spec.is_value_required) {
+                                    $suffix = '='
+                                }
+                                $_.name + $suffix
+                            ),
+                            $(
+                                $suffix = ''
+                                if ($_.spec.accept_value) {
+                                    $suffix = '=' + ($_.spec.name -replace '^-+', '').ToUpper()
+                                    if (-not $_.spec.is_value_required) {
+                                        $suffix = "[$suffix]"
                                     }
-                                    $_.name + $suffix
-                                ),
-                                $(
-                                    $suffix = ''
-                                    if ($_.spec.accept_value) {
-                                        $suffix = '=' + ($_.spec.name -replace '^-+', '').ToUpper()
-                                        if (-not $_.spec.is_value_required) {
-                                            $suffix = "[$suffix]"
-                                        }
-                                    }
-                                    $_.name + $suffix
-                                ),
-                                'ParameterName',
-                                $_.spec.description)
-                        }
-            
-                        return
+                                }
+                                $_.name + $suffix
+                            ),
+                            'ParameterName',
+                            $_.spec.description)
                     }
-                }
+        
+                    return
             }
-
-(TabExpansion2 -inputScript 'php ../laravelbootcamp/chirper/artisan migrate:rollback ' -cursorColumn 56).CompletionMatches
+        }
+    }
