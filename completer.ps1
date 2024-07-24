@@ -75,7 +75,7 @@ Set-Alias -Name art -Value php_artisan
                                     spec = $spec 
                                 } 
                             } 
-                        } | 
+                    } | 
                     Where-Object { $_.name -like "$wordToComplete*" -and ($_.spec.is_multiple -or $_.name -notin $options) } |
                     ForEach-Object { 
                         [System.Management.Automation.CompletionResult]::new(
