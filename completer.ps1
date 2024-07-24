@@ -61,31 +61,48 @@ Set-Alias -Name art -Value php_artisan
                     Select-Object -ExpandProperty 'options' | 
                     ForEach-Object { $_.psobject.properties.Value } | 
                     ForEach-Object { 
-                        $description = $_.description; 
+                        $spec = $_
                         @{
-                            name        = $_.name; 
-                            description = $description 
+                            name = $_.name; 
+                            spec = $spec 
                         };
 
                         $_.shortcut -split '\|' | 
                             Where-Object { $_ -ne '' } | 
                             ForEach-Object { 
                                 @{
-                                    name        = $_; 
-                                    description = $description 
+                                    name = $_; 
+                                    spec = $spec 
                                 } 
                             } 
                         } | 
-                        Where-Object { $_.name -like "$wordToComplete*" -and $_.name -notin $options } |
+                        Where-Object { $_.name -like "$wordToComplete*" -and ($_.spec.is_multiple -or $_.name -notin $options) } |
                         ForEach-Object { 
                             [System.Management.Automation.CompletionResult]::new(
-                                $_.name,
-                                $_.name,
+                                $(
+                                    $suffix = ''
+                                    if ($_.spec.is_value_required) {
+                                        $suffix = '='
+                                    }
+                                    $_.name + $suffix
+                                ),
+                                $(
+                                    $suffix = ''
+                                    if ($_.spec.accept_value) {
+                                        $suffix = '=' + ($_.spec.name -replace '^-+', '').ToUpper()
+                                        if (-not $_.spec.is_value_required) {
+                                            $suffix = "[$suffix]"
+                                        }
+                                    }
+                                    $_.name + $suffix
+                                ),
                                 'ParameterName',
-                                $_.description)
+                                $_.spec.description)
                         }
             
                         return
                     }
                 }
             }
+
+(TabExpansion2 -inputScript 'php ../laravelbootcamp/chirper/artisan migrate:rollback ' -cursorColumn 56).CompletionMatches
